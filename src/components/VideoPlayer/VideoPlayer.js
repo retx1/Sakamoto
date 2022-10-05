@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback} from "react";
+import React, { useEffect, useState, useRef} from "react";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { BsSkipEnd } from "react-icons/bs";
 import { IconContext } from "react-icons";
@@ -51,7 +51,6 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
     }
 
     function createPlayer() {
-
       const newPlayer = new plyr(videoRef?.current, defaultOptions);
 
       setPlayer(new plyr(videoRef?.current, defaultOptions));
@@ -113,7 +112,6 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
 
     let hls;
     if (Hls.isSupported()) {
-
       hls = new Hls();
       hls.loadSource(src);
       hls.attachMedia(videoRef?.current);
