@@ -59,7 +59,7 @@ Read the **[Contributing Docs](.github/CONTRIBUTING.md)** before contributing. W
 
 ### **CLI Downloader**
 
- **```Work In Progress - 37%```**
+ **```Work In Progress - 39%```**
 
  <img src="public/assets/img/Del.gif" width=200>
 
