@@ -7,7 +7,7 @@ import AnimeCards from "../components/Home/AnimeCards";
 import HomeSkeleton from "../components/skeletons/CarouselSkeleton";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import WatchingEpisodes from "../components/Home/WatchingEpisodes";
-import {metaContext} from '../App'
+
 function Home({changeMetaArr}) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
