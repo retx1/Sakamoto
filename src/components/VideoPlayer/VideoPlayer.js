@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback} from "react";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { BsSkipEnd } from "react-icons/bs";
 import { IconContext } from "react-icons";
@@ -12,34 +12,103 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
   if (src.includes("mp4")) {
     src = sources.sources_bk[0].file;
   }
+
+  const [flag, setFlag] = useState(true);
   const [player, setPlayer] = useState(null);
   const videoRef = useRef();
 
-  function skipIntro() {
+  const defaultOptions = useMemo(() => ({
+    captions: { active: true, update: true, language: "en" },
+    controls: [
+      "play-large",
+      "rewind",
+      "play",
+      "fast-forward",
+      "progress",
+      "current-time",
+      "duration",
+      "mute",
+      "volume",
+      "settings",
+      "fullscreen",
+    ],
+  }), []);
+
+  const skipIntro = useCallback(() => {
     player.forward(85);
-  }
+  }, [player]);
 
   useEffect(() => {
-    let flag = true;
 
-    const defaultOptions = {
-      captions: { active: true, update: true, language: "en" },
-      controls: [
-        "play-large",
-        "rewind",
-        "play",
-        "fast-forward",
-        "progress",
-        "current-time",
-        "duration",
-        "mute",
-        "volume",
-        "settings",
-        "fullscreen",
-      ],
-    };
+    function updateQuality(newQuality) {
+      if (newQuality === 0) {
+        window.hls.currentLevel = -1;
+        console.log("Auto quality selection");
+      } else {
+        window.hls.levels.forEach((level, levelIndex) => {
+          if (level.height === newQuality) {
+            console.log("Found quality match with " + newQuality);
+            window.hls.currentLevel = levelIndex;
+          }
+        });
+      }
+    }
+
+    function setupPlayer() {
+      const newPlayer = new plyr(videoRef.current, defaultOptions);
+      if (!player) {
+        setPlayer(newPlayer);
+      }
+      const button = <button className="skip-button" onClick={() => skipIntro()}>Skip Intro</button>
+
+      newPlayer.on("enterfullscreen", (event) => {
+        const controls = Array.from(newPlayer.elements.controls.children);
+        controls.push(button);
+        videoRef.current.plyr.elements.controls.children = controls;
+        window.screen.orientation.lock("landscape");
+      });
+
+      newPlayer.on("exitfullscreen", (event) => {
+        console.log('newPlayer', newPlayer)
+        const controls = Array.from(newPlayer.elements.controls.children);
+        controls.filter(control => control.className !== 'skip-button');
+        videoRef.current.plyr.elements.controls.children = controls;
+        window.screen.orientation.lock("portrait");
+      });
+
+      newPlayer.on("timeupdate", function (e) {
+        const time = newPlayer.currentTime,
+          lastTime = localStorage.getItem(title);
+        if (time > lastTime) {
+          localStorage.setItem(title, Math.round(newPlayer.currentTime));
+        }
+        if (newPlayer.ended) {
+          localStorage.removeItem(title);
+        }
+      });
+
+      newPlayer.on("play", function(e) {
+        if (flag) {
+          const lastTime = localStorage.getItem(title);
+          if (lastTime !== null && lastTime > newPlayer.currentTime) {
+            newPlayer.forward(parseInt(lastTime));
+          }
+          setFlag(false)
+        }
+      });
+
+      newPlayer.on("seeking", (event) => {
+        localStorage.setItem(title, Math.round(newPlayer.currentTime));
+      });
+
+  }
+
+    if (!flag) {
+      setFlag(true);
+    }
 
     let hls;
+
     if (Hls.isSupported()) {
       hls = new Hls();
       hls.loadSource(src);
@@ -54,129 +123,24 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           forced: true,
           onChange: (e) => updateQuality(e),
         };
+
         hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
           if (hls.autoLevelEnabled) {
             videoRef.current.plyr.elements.settings.popup.innerText = `Auto (${hls.levels[data.level].height}p)`;
           } else {
-            videoRef.current.plyr.elements.settings.popup.innerText.innerHTML = `Auto`;
+            videoRef.current.plyr.elements.settings.popup.innerText = `Auto`;
           }
-        });
-        let player = new plyr(videoRef.current, defaultOptions);
-        setPlayer(new plyr(videoRef.current, defaultOptions));
-        const plyer = videoRef.current.plyr.elements.controls;
-        const button = <button className="skip-button" onClick={() => player.forward(85)}>Skip Intro</button>
-
-        player.on("enterfullscreen", (event) => {
-          plyer.children.push(button);
-          window.screen.orientation.lock("landscape");
-        });
-
-        player.on("exitfullscreen", (event) => {
-          plyr.children.filter((child) => child.className !== "skip-button");
-          window.screen.orientation.lock("portrait");
-        });
-
-        player.on("timeupdate", function (e) {
-          var time = player.currentTime,
-            lastTime = localStorage.getItem(title);
-          if (time > lastTime) {
-            localStorage.setItem(title, Math.round(player.currentTime));
-          }
-          if (player.ended) {
-            localStorage.removeItem(title);
-          }
-        });
-
-        player.on("play", function (e) {
-          if (flag) {
-            var lastTime = localStorage.getItem(title);
-            if (lastTime !== null && lastTime > player.currentTime) {
-              player.forward(parseInt(lastTime));
-            }
-            flag = false;
-          }
-        });
-
-        player.on("seeking", (event) => {
-          localStorage.setItem(title, Math.round(player.currentTime));
         });
       });
-      hls.attachMedia(videoRef.current);
       window.hls = hls;
+      setupPlayer();
 
-      function updateQuality(newQuality) {
-        if (newQuality === 0) {
-          window.hls.currentLevel = -1;
-          console.log("Auto quality selection");
-        } else {
-          window.hls.levels.forEach((level, levelIndex) => {
-            if (level.height === newQuality) {
-              console.log("Found quality match with " + newQuality);
-              window.hls.currentLevel = levelIndex;
-            }
-          });
-        }
-      }
     } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
       videoRef.current.src = src;
-      const defaultOptions = {
-        captions: { active: true, update: true, language: "en" },
-        controls: [
-          "play-large",
-          "rewind",
-          "play",
-          "fast-forward",
-          "progress",
-          "current-time",
-          "duration",
-          "mute",
-          "volume",
-          "settings",
-          "fullscreen",
-        ],
-      };
-      let player = new plyr(videoRef.current, defaultOptions);
-      setPlayer(new plyr(videoRef.current, defaultOptions));
-      const plyer = videoRef.current.plyr.elements.controls;
-      const button = <button className="skip-button" onClick={() => player.forward(85)}>Skip Intro</button>
-
-      player.on("enterfullscreen", (event) => {
-        plyer.children.push(button);
-        window.screen.orientation.lock("landscape");
-      });
-
-      player.on("exitfullscreen", (event) => {
-        plyr.children.filter((child) => child.className !== "skip-button");
-        window.screen.orientation.lock("portrait");
-      });
-
-      player.on("timeupdate", function (e) {
-        var time = player.currentTime,
-          lastTime = localStorage.getItem(title);
-        if (time > lastTime) {
-          localStorage.setItem(title, Math.round(player.currentTime));
-        }
-        if (player.ended) {
-          localStorage.removeItem(title);
-        }
-      });
-
-      player.on("play", function (e) {
-        if (flag) {
-          var lastTime = localStorage.getItem(title);
-          if (lastTime !== null && lastTime > player.currentTime) {
-            player.forward(parseInt(lastTime));
-          }
-          flag = false;
-        }
-      });
-
-      player.on("seeking", (event) => {
-        localStorage.setItem(title, Math.round(player.currentTime));
-      });
+      setupPlayer();
     } else {
-      const player = new plyr(src, defaultOptions);
-      player.source = {
+      const newPlayer = new plyr(src, defaultOptions);
+      newPlayer.source = {
         type: "video",
         title: "Example title",
         sources: [
@@ -186,12 +150,13 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           },
         ],
       };
+      setPlayer(newPlayer);
     }
     return () => {
       hls.stopLoad();
       hls.destroy();
     };
-  }, [src, title]);
+  }, [defaultOptions, flag, player, skipIntro, src, title]);
 
   return (
     <div
