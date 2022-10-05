@@ -13,32 +13,28 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
     src = sources.sources_bk[0].file;
   }
 
-  const [flag, setFlag] = useState(true);
   const [player, setPlayer] = useState(null);
   const videoRef = useRef();
 
-  const defaultOptions = useMemo(() => ({
-    captions: { active: true, update: true, language: "en" },
-    controls: [
-      "play-large",
-      "rewind",
-      "play",
-      "fast-forward",
-      "progress",
-      "current-time",
-      "duration",
-      "mute",
-      "volume",
-      "settings",
-      "fullscreen",
-    ],
-  }), []);
-
-  const skipIntro = useCallback(() => {
-    player.forward(85);
-  }, [player]);
-
   useEffect(() => {
+    let flag = true;
+
+    const defaultOptions = {
+      captions: { active: true, update: true, language: "en" },
+      controls: [
+        "play-large",
+        "rewind",
+        "play",
+        "fast-forward",
+        "progress",
+        "current-time",
+        "duration",
+        "mute",
+        "volume",
+        "settings",
+        "fullscreen",
+      ],
+    };
 
     function updateQuality(newQuality) {
       if (newQuality === 0) {
@@ -54,65 +50,73 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
       }
     }
 
-    function setupPlayer() {
-      const newPlayer = new plyr(videoRef.current, defaultOptions);
-      if (!player) {
-        setPlayer(newPlayer);
-      }
-      const button = <button className="skip-button" onClick={() => skipIntro()}>Skip Intro</button>
+    function createPlayer() {
 
-      newPlayer.on("enterfullscreen", (event) => {
-        const controls = Array.from(newPlayer.elements.controls.children);
-        controls.push(button);
-        videoRef.current.plyr.elements.controls.children = controls;
-        window.screen.orientation.lock("landscape");
-      });
+      const newPlayer = new plyr(videoRef?.current, defaultOptions);
 
-      newPlayer.on("exitfullscreen", (event) => {
-        console.log('newPlayer', newPlayer)
-        const controls = Array.from(newPlayer.elements.controls.children);
-        controls.filter(control => control.className !== 'skip-button');
-        videoRef.current.plyr.elements.controls.children = controls;
-        window.screen.orientation.lock("portrait");
-      });
+      setPlayer(new plyr(videoRef?.current, defaultOptions));
 
-      newPlayer.on("timeupdate", function (e) {
-        const time = newPlayer.currentTime,
-          lastTime = localStorage.getItem(title);
-        if (time > lastTime) {
-          localStorage.setItem(title, Math.round(newPlayer.currentTime));
-        }
-        if (newPlayer.ended) {
-          localStorage.removeItem(title);
-        }
-      });
+      if (newPlayer) {
 
-      newPlayer.on("play", function(e) {
-        if (flag) {
-          const lastTime = localStorage.getItem(title);
-          if (lastTime !== null && lastTime > newPlayer.currentTime) {
-            newPlayer.forward(parseInt(lastTime));
+        const skipButton = document.createElement("button");
+        skipButton.classList.add("skip-button");
+        skipButton.innerHTML = "Skip Intro";
+        skipButton.addEventListener("click", function () {
+          newPlayer.forward(85);
+        });
+
+        let controls;
+        newPlayer.on("ready", () => {
+          controls = document.querySelector(".plyr__controls");
+        });
+
+        newPlayer.on("enterfullscreen", (event) => {
+          if (controls) {
+            controls.appendChild(skipButton);
           }
-          setFlag(false)
-        }
-      });
+          window.screen.orientation.lock("landscape");
+        });
 
-      newPlayer.on("seeking", (event) => {
-        localStorage.setItem(title, Math.round(newPlayer.currentTime));
-      });
+        newPlayer.on("exitfullscreen", (event) => {
+          if (document.querySelector(".skip-button")) {
+            document.querySelector(".skip-button").remove();
+          }
+          window.screen.orientation.lock("portrait");
+        });
 
-  }
+        newPlayer.on("timeupdate", function (e) {
+          const time = newPlayer.currentTime,
+            lastTime = localStorage.getItem(title);
+          if (time > lastTime) {
+            localStorage.setItem(title, Math.round(newPlayer.currentTime));
+          }
+          if (newPlayer.ended) {
+            localStorage.removeItem(title);
+          }
+        });
 
-    if (!flag) {
-      setFlag(true);
+        newPlayer.on("play", function(e) {
+          if (flag) {
+            const lastTime = localStorage.getItem(title);
+            if (lastTime !== null && lastTime > newPlayer.currentTime) {
+              newPlayer.forward(parseInt(lastTime));
+            }
+            flag = false;
+          }
+        });
+
+        newPlayer.on("seeking", (event) => {
+          localStorage.setItem(title, Math.round(newPlayer.currentTime));
+        });
+      }
     }
 
     let hls;
-
     if (Hls.isSupported()) {
+
       hls = new Hls();
       hls.loadSource(src);
-      hls.attachMedia(videoRef.current);
+      hls.attachMedia(videoRef?.current);
 
       hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
         const availableQualities = hls.levels.map((l) => l.height);
@@ -132,13 +136,18 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           }
         });
       });
+
+      if (videoRef.current) {
+        createPlayer();
+      }
       window.hls = hls;
-      setupPlayer();
 
     } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
+
       videoRef.current.src = src;
-      setupPlayer();
+      createPlayer();
     } else {
+
       const newPlayer = new plyr(src, defaultOptions);
       newPlayer.source = {
         type: "video",
@@ -152,11 +161,12 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
       };
       setPlayer(newPlayer);
     }
+
     return () => {
       hls.stopLoad();
       hls.destroy();
     };
-  }, [defaultOptions, flag, player, skipIntro, src, title]);
+  }, [src, title]);
 
   return (
     <div
@@ -185,7 +195,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
               <span className="tooltiptext">Change Server</span>
             </div>
             <div className="tooltip">
-              <button onClick={() => skipIntro()}>
+              <button onClick={() => player.forward(85)}>
                 <BsSkipEnd />
               </button>
               <span className="tooltiptext">Skip Intro</span>
