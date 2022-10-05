@@ -3,13 +3,17 @@ import React, { useEffect, useState } from "react";
 import AnimeGrid from "../components/AnimeGrid/AnimeGrid";
 import SearchResultsSkeleton from "../components/skeletons/SearchResultsSkeleton";
 
-function PopularAnime() {
+function PopularAnime({changeMetaArr}) {
   const [animeDetails, setAnimeDetails] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getAnime();
   }, []);
+
+  React.useEffect(()=>{
+    changeMetaArr("title", "Popular Anime")
+  })
 
   async function getAnime() {
     window.scrollTo(0, 0);

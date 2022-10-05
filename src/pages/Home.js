@@ -7,13 +7,16 @@ import AnimeCards from "../components/Home/AnimeCards";
 import HomeSkeleton from "../components/skeletons/CarouselSkeleton";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import WatchingEpisodes from "../components/Home/WatchingEpisodes";
-
-function Home() {
+import {metaContext} from '../App'
+function Home({changeMetaArr}) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmRemove, setConfirmRemove] = useState([]);
   const { width } = useWindowDimensions();
-
+  React.useEffect(()=>{
+    changeMetaArr("title", "Sakamoto - Watch Popular Anime Online")
+    // console.log("Hlo")
+  })
   useEffect(() => {
     getImages();
   }, []);
