@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { BsSkipEnd } from "react-icons/bs";
 import { IconContext } from "react-icons";
@@ -13,13 +13,13 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
     src = sources.sources_bk[0].file;
   }
   const [player, setPlayer] = useState(null);
+  const videoRef = useRef();
 
   function skipIntro() {
     player.forward(85);
   }
 
   useEffect(() => {
-    const video = document.getElementById("player");
     let flag = true;
 
     const defaultOptions = {
@@ -43,7 +43,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
     if (Hls.isSupported()) {
       hls = new Hls();
       hls.loadSource(src);
-      hls.attachMedia(video);
+      hls.attachMedia(videoRef.current);
 
       hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
         const availableQualities = hls.levels.map((l) => l.height);
@@ -55,35 +55,24 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           onChange: (e) => updateQuality(e),
         };
         hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
-          var span = document.querySelector(
-            ".plyr__menu__container [data-plyr='quality'][value='0'] span"
-          );
           if (hls.autoLevelEnabled) {
-            span.innerHTML = `Auto (${hls.levels[data.level].height}p)`;
+            videoRef.current.plyr.elements.settings.popup.innerText = `Auto (${hls.levels[data.level].height}p)`;
           } else {
-            span.innerHTML = `Auto`;
+            videoRef.current.plyr.elements.settings.popup.innerText.innerHTML = `Auto`;
           }
         });
-        let player = new plyr(video, defaultOptions);
-        setPlayer(new plyr(video, defaultOptions));
-        let plyer;
-        var button = document.createElement("button");
-        button.classList.add("skip-button");
-        button.innerHTML = "Skip Intro";
-        button.addEventListener("click", function () {
-          player.forward(85);
-        });
-        player.on("ready", () => {
-          plyer = document.querySelector(".plyr__controls");
-        });
+        let player = new plyr(videoRef.current, defaultOptions);
+        setPlayer(new plyr(videoRef.current, defaultOptions));
+        const plyer = videoRef.current.plyr.elements.controls;
+        const button = <button className="skip-button" onClick={() => player.forward(85)}>Skip Intro</button>
 
         player.on("enterfullscreen", (event) => {
-          plyer.appendChild(button);
+          plyer.children.push(button);
           window.screen.orientation.lock("landscape");
         });
 
         player.on("exitfullscreen", (event) => {
-          document.querySelector(".skip-button").remove();
+          plyr.children.filter((child) => child.className !== "skip-button");
           window.screen.orientation.lock("portrait");
         });
 
@@ -112,7 +101,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           localStorage.setItem(title, Math.round(player.currentTime));
         });
       });
-      hls.attachMedia(video);
+      hls.attachMedia(videoRef.current);
       window.hls = hls;
 
       function updateQuality(newQuality) {
@@ -128,8 +117,8 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           });
         }
       }
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
+    } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
+      videoRef.current.src = src;
       const defaultOptions = {
         captions: { active: true, update: true, language: "en" },
         controls: [
@@ -146,26 +135,18 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           "fullscreen",
         ],
       };
-      let player = new plyr(video, defaultOptions);
-      setPlayer(new plyr(video, defaultOptions));
-      let plyer;
-      var button = document.createElement("button");
-      button.classList.add("skip-button");
-      button.innerHTML = "Skip Intro";
-      button.addEventListener("click", function () {
-        player.forward(85);
-      });
-      player.on("ready", () => {
-        plyer = document.querySelector(".plyr__controls");
-      });
+      let player = new plyr(videoRef.current, defaultOptions);
+      setPlayer(new plyr(videoRef.current, defaultOptions));
+      const plyer = videoRef.current.plyr.elements.controls;
+      const button = <button className="skip-button" onClick={() => player.forward(85)}>Skip Intro</button>
 
       player.on("enterfullscreen", (event) => {
-        plyer.appendChild(button);
+        plyer.children.push(button);
         window.screen.orientation.lock("landscape");
       });
 
       player.on("exitfullscreen", (event) => {
-        document.querySelector(".skip-button").remove();
+        plyr.children.filter((child) => child.className !== "skip-button");
         window.screen.orientation.lock("portrait");
       });
 
@@ -247,7 +228,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           </div>
         </IconContext.Provider>
       </PlayerContainer>
-      <video id="player" playsInline crossorigin="anonymous"></video>
+      <video id="player" ref={videoRef} playsInline crossOrigin="anonymous"></video>
     </div>
   );
 }

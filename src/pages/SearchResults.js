@@ -44,7 +44,7 @@ function SearchResults({changeMetaArr}) {
       [otherKey]:otherChecked
     });
   };
-  
+
   const filterResults = (item) => {
     if (filter.dubs && filter.subs) return true;
     let match = item.title.toLowerCase().endsWith('(dub)');
@@ -52,9 +52,9 @@ function SearchResults({changeMetaArr}) {
   }
 
   return (
-    <div>
-      {loading && <SearchResultsSkeleton />}
-      {!loading && (
+    <>
+      {loading ? <SearchResultsSkeleton /> :
+      (
         <Parent>
           <Heading>
             <span>Search</span> Results
@@ -67,7 +67,7 @@ function SearchResults({changeMetaArr}) {
           </CheckboxWrapper>
           <CardWrapper>
             {results.filter(filterResults).map((item, i) => (
-              <Wrapper to={item.link}>
+              <Wrapper to={item.link} key={i}>
                 <img src={item.image} alt="" />
                 <p>{item.title}</p>
               </Wrapper>
@@ -76,7 +76,7 @@ function SearchResults({changeMetaArr}) {
           {results.length === 0 && <h2>No Search Results Found</h2>}
         </Parent>
       )}
-    </div>
+    </>
   );
 }
 
