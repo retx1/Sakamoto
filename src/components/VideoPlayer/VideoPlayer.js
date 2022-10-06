@@ -88,13 +88,13 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
           const time = newPlayer.currentTime,
             lastTime = localStorage.getItem(title);
 
-            // hide skip button if it the intro was already passed
+            // hides skip button if the intro was already passed
           if(time >= 85) {
             if(document.querySelector(".skip-button")) return document.querySelector(".skip-button").hidden = true;
             if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "none";
           }
 
-           // re-add skip button  
+           // re-adds skip button  
           if(time < 85) {
             if(document.querySelector(".skip-button")) return document.querySelector(".skip-button").hidden = false;
             if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "inline";
