@@ -62,6 +62,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
         skipButton.innerHTML = "Skip Intro";
         skipButton.addEventListener("click", function () {
           newPlayer.forward(85);
+          skipButton.hidden = true; //hides the skip button even if the anime is still loading after skipping the intro
         });
 
         let controls;
@@ -86,6 +87,19 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
         newPlayer.on("timeupdate", function (e) {
           const time = newPlayer.currentTime,
             lastTime = localStorage.getItem(title);
+
+            // hide skip button if it the intro was already passed
+          if(time >= 85) {
+            if(document.querySelector(".skip-button")) return document.querySelector(".skip-button").hidden = true;
+            if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "none";
+          }
+
+           // re-add skip button  
+          if(time < 85) {
+            if(document.querySelector(".skip-button")) return document.querySelector(".skip-button").hidden = false;
+            if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "inline";
+          }
+
           if (time > lastTime) {
             localStorage.setItem(title, Math.round(newPlayer.currentTime));
           }
@@ -166,6 +180,11 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
     };
   }, [src, title]);
 
+  // hides the skip button even if the anime is still loading after skipping the intro
+  function hidebtn(e) {
+    document.getElementById(e).style.display = "none";
+  }
+
   return (
     <div
       style={{
@@ -192,8 +211,8 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
               </button>
               <span className="tooltiptext">Change Server</span>
             </div>
-            <div className="tooltip">
-              <button onClick={() => player.forward(85)}>
+            <div id="skipbtn" className="tooltip">
+              <button onClick={() => player.forward(85) & hidebtn("skipbtn")}>
                 <BsSkipEnd />
               </button>
               <span className="tooltiptext">Skip Intro</span>
