@@ -10,13 +10,15 @@ const DefaultFilter = {
 };
 
 
-function SearchResults() {
+function SearchResults({changeMetaArr}) {
   let urlParams = useParams().name;
   urlParams = urlParams.replace(":", "").replace("(", "").replace(")", "");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState(DefaultFilter);
-
+  React.useEffect(()=>{
+    changeMetaArr("title", `Search results for: ${urlParams}`)
+  })
   useEffect(() => {
     async function getResults() {
       setLoading(true);

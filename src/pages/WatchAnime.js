@@ -13,7 +13,7 @@ import ServersList from "../components/WatchAnime/ServersList";
 import PlayerContainer from "../components/Wrappers/PlayerContainer";
 import EpisodeLinksList from "../components/EpisodeLinks/EpisodeLinksList";
 
-function WatchAnime() {
+function WatchAnime({changeMetaArr}) {
   let episodeSlug = useParams().episode;
 
   const [episodeLinks, setEpisodeLinks] = useState([]);
@@ -119,6 +119,20 @@ function WatchAnime() {
       document.exitFullscreen();
     }
   }
+
+  useEffect(()=>{
+    if(loading===false){
+      changeMetaArr("title", `${episodeLinks[0].titleName.substring(
+        0,
+        episodeLinks[0].titleName.indexOf("Episode")
+      )} - ${" " +
+      episodeLinks[0].titleName.substring(
+        episodeLinks[0].titleName.indexOf("Episode")
+      )}`)
+      console.log("Hello")
+    }
+  }, [loading])
+
   return (
     <div>
       {loading && <WatchAnimeSkeleton />}

@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 // import logo from "./public/assets/img/ghost.png";
 import styled from "styled-components";
 
-function PageNotFound() {
+function PageNotFound({changeMetaArr}) {
+  React.useEffect(()=>{
+    changeMetaArr("title", "PageNotFound")
+  })
   return (
     <NotFoundWrapper>
       <ErrorCTA>

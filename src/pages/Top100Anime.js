@@ -3,14 +3,16 @@ import React, { useEffect, useState } from "react";
 import AnimeGrid from "../components/AnimeGrid/AnimeGrid";
 import SearchResultsSkeleton from "../components/skeletons/SearchResultsSkeleton";
 
-function Top100Anime() {
+function Top100Anime({changeMetaArr}) {
   const [animeDetails, setAnimeDetails] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getAnime();
   }, []);
-
+  React.useEffect(()=>{
+    changeMetaArr("title", "Top 100 Anime")
+  })
   async function getAnime() {
     window.scrollTo(0, 0);
     let res = await axios.get(
