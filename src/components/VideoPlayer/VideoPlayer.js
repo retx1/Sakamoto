@@ -127,11 +127,10 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
         };
 
         hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
-          if (hls.autoLevelEnabled) {
-            videoRef.current.plyr.elements.settings.popup.innerText = `Auto (${hls.levels[data.level].height}p)`;
-          } else {
-            videoRef.current.plyr.elements.settings.popup.innerText = `Auto`;
-          }
+          const span = document.querySelector(
+            ".plyr__menu__container [data-plyr='quality'][value='0'] span"
+          );
+          span.innerHTML = hls.autoLevelEnabled ? `Auto (${hls.levels[data.level].height}p)` : 'Auto';
         });
       });
 
