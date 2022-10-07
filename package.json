@@ -18,7 +18,7 @@
     "react-scripts": "5.0.1",
     "scripts": "^0.1.0",
     "styled-components": "^5.3.6",
-    "swiper": "^8.4.2",
+    "swiper": "^8.4.3",
     "web-vitals": "^3.0.2"
   },
   "scripts": {
