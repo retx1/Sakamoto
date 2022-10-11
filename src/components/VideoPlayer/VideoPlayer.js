@@ -36,24 +36,10 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
       ],
     };
 
-    function updateQuality(newQuality) {
-      if (newQuality === 0) {
-        window.hls.currentLevel = -1;
-        console.log("Auto quality selection");
-      } else {
-        window.hls.levels.forEach((level, levelIndex) => {
-          if (level.height === newQuality) {
-            console.log("Found quality match with " + newQuality);
-            window.hls.currentLevel = levelIndex;
-          }
-        });
-      }
-    }
+    function createPlayer(options = defaultOptions) {
+      const newPlayer = new plyr(videoRef?.current, options);
 
-    function createPlayer() {
-      const newPlayer = new plyr(videoRef?.current, defaultOptions);
-
-      setPlayer(new plyr(videoRef?.current, defaultOptions));
+      setPlayer(new plyr(videoRef?.current, options));
 
       if (newPlayer) {
 
@@ -94,7 +80,7 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
             if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "none";
           }
 
-           // re-adds skip button  
+           // re-adds skip button
           if(time < 85) {
             if(document.querySelector(".skip-button")) return document.querySelector(".skip-button").hidden = false;
             if(document.getElementById("skipbtn")) return document.getElementById("skipbtn").style.display = "inline";
@@ -126,6 +112,21 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
 
     let hls;
     if (Hls.isSupported()) {
+
+      function updateQuality(newQuality) {
+        if (newQuality === 0) {
+          window.hls.currentLevel = -1;
+          console.log("Auto quality selection");
+        } else {
+          window.hls.levels.forEach((level, levelIndex) => {
+            if (level.height === newQuality) {
+              console.log("Found quality match with " + newQuality);
+              window.hls.currentLevel = levelIndex;
+            }
+          });
+        }
+      }
+
       hls = new Hls();
       hls.loadSource(src);
       hls.attachMedia(videoRef?.current);
@@ -133,25 +134,23 @@ function VideoPlayer({ sources, internalPlayer, setInternalPlayer, title }) {
       hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
         const availableQualities = hls.levels.map((l) => l.height);
         availableQualities.unshift(0);
-        defaultOptions.quality = {
+        const newDefaultOptions = {...defaultOptions, quality: {
           default: 0,
           options: availableQualities,
           forced: true,
           onChange: (e) => updateQuality(e),
-        };
+        }};
 
         hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
           const span = document.querySelector(
             ".plyr__menu__container [data-plyr='quality'][value='0'] span");
           span.innerHTML = hls.autoLevelEnabled ? `Auto (${hls.levels[data.level].height}p)` : 'Auto';
         });
+
+        createPlayer(newDefaultOptions)
       });
 
-      if (videoRef.current) {
-        createPlayer();
-      }
       window.hls = hls;
-
     } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
 
       videoRef.current.src = src;
