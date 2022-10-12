@@ -4,15 +4,6 @@ import styled from "styled-components";
 import { IconContext } from "react-icons";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 
-document.addEventListener("keydown", (e) => {
-  e = e || window.event;
-  const searchbox = document.getElementById("input");
-if ("/") {
-      searchbox.focus();
-      e.preventDefault();
-}
-});
-
 function Nav() {
   const { width } = useWindowDimensions();
   const navigate = useNavigate();
@@ -136,13 +127,13 @@ const Search = styled.div`
   input {
     border: none;
     height: 30px;
-    border-radius: 30px;
+    border-radius: 0px;
     padding: 10px 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     ::placeholder {
-      color: #000;
+      color: #FFF;
     }
   }
 `;

@@ -11,9 +11,9 @@ function PageNotFound({changeMetaArr}) {
     <NotFoundWrapper>
       <ErrorCTA>
         <img
-          src="https://cdn.discordapp.com/attachments/928341740434378752/1016160204355813437/3.png"
+          src="https://cdn.discordapp.com/attachments/1009328245533065288/1029717835527753788/7.png"
           width="320"
-          alt="Akio"
+          alt="AkioNotFound"
           className="error-image"
         />
         <HomeLink to="/">Go to Home</HomeLink>
