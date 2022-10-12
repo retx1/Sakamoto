@@ -8,7 +8,7 @@ function Nav() {
   const { width } = useWindowDimensions();
   const navigate = useNavigate();
 
-  let keyPress = (e) => {
+  const keyPress = (e) => {
     if (e.keyCode === 13) {
       let lowerCase = e.target.value.toLowerCase();
       let titleLength = lowerCase.split(" ").join("").length;
