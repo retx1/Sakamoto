@@ -127,7 +127,7 @@ const Search = styled.div`
   input {
     border: none;
     height: 30px;
-    border-radius: 0px;
+    border-radius: 10px;
     padding: 10px 20px;
     display: flex;
     justify-content: center;
