@@ -4,6 +4,15 @@ import styled from "styled-components";
 import { IconContext } from "react-icons";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 
+document.addEventListener("keydown", (e) => {
+  e = e || window.event;
+  const searchbox = document.getElementById("input");
+if ("/") {
+      searchbox.focus();
+      e.preventDefault();
+}
+});
+
 function Nav() {
   const { width } = useWindowDimensions();
   const navigate = useNavigate();
@@ -29,6 +38,7 @@ function Nav() {
             <img src="./assets/logo.png" alt="Sakamoto" width="60" />
           </Link>
           <input
+            id="input"
             type="text"
             required
             placeholder="Search Anime"
