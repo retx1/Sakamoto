@@ -15,13 +15,8 @@ import { useState } from "react";
 
 function App() {
   const [metaArr, setMetaArr] = useState({"title": "Sakamoto - Watch Popular Anime Online", "description": "Sakamoto. An ad-free anime streaming site. Catch your favourite shows and movies right here! Help us by contributing to the project on github."})
-  // function changeMetaArr(propertyChanged, titleChange, descChange, bannerChange, urlChange){
-  function changeMetaArr(propertyChanged, titleChange){
+  function changeMetaArr(propertyChanged, change){
     // document.title = change
-    // description = descChange;
-    // banner = bannerChange;
-    // url = urlChange;
-    console.log("Hi from changeMeta")
   }
   return (
     <Router>

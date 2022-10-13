@@ -8,15 +8,15 @@ function TrendingAnime({changeMetaArr}) {
   const [animeDetails, setAnimeDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const title = "Trending Anime";
-  const content= "Trending Anime";
+  const content= "Sakamoto - Watch Popular Anime Online";
   const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
 
   useEffect(() => {
     getAnime();
   }, []);
-  React.useEffect(()=>{
-    changeMetaArr("title", "Trending Anime")
-  })
+  // React.useEffect(()=>{
+  //   changeMetaArr("title", "Trending Anime")
+  // })
   async function getAnime() {
     window.scrollTo(0, 0);
     let res = await axios.get(

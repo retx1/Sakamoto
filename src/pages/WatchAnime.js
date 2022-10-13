@@ -25,16 +25,15 @@ function WatchAnime({changeMetaArr}) {
   const [internalPlayer, setInternalPlayer] = useState(true);
   const [localStorageDetails, setLocalStorageDetails] = useState(0);
   const [title, setTitle] = useState("");
-  const content= "Sakamoto - Watch Popular Anime Online";
+  const [content, setContent] = useState("");
   const [banner, setBanner] = useState("");
 
   useEffect(() => {
     function updateLocalStorage(episode, episodeLinks) {
       setTitle((title) => {
-        title = `${episodeLinks[0].titleName.substring(0, episodeLinks[0].titleName.indexOf("Episode"))} 
-        - ${episodeLinks[0].titleName.substring(episodeLinks[0].titleName.indexOf("Episode"))}`;
-        console.log(title);
-      })
+        return title = `${episodeLinks[0].titleName.substring(0, episodeLinks[0].titleName.indexOf("Episode"))} 
+          - ${episodeLinks[0].titleName.substring(episodeLinks[0].titleName.indexOf("Episode"))}`;
+      });
       let episodeNum = episode.replace(/.*?(\d+)[^\d]*$/, "$1");
       let animeName = episodeLinks[0].titleName.substring(
         0,
@@ -76,7 +75,7 @@ function WatchAnime({changeMetaArr}) {
       }
     }
 
-    async function getEpisodeLinks() {
+  async function getEpisodeLinks() {
       setLoading(true);
       window.scrollTo(0, 0);
       let res = await axios.get(
@@ -130,32 +129,33 @@ function WatchAnime({changeMetaArr}) {
   }
 
   useEffect(()=>{
+    async function getAnimeBanner() {
+      let slug = `${episodeLinks[0].titleName.substring(0,
+       episodeLinks[0].titleName.indexOf("Episode"))}`.toLowerCase().replaceAll(" ","-").slice(0, -1);
+      console.log(slug);
+      let res = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}api/getanime?link=/category/${slug}`
+      );
+      setContent((content) => {
+        return content = res.data[0].gogoResponse.description.replace("Plot Summary:", "");
+      })
+      setBanner((banner) => {
+        return banner = res.data[0].gogoResponse.image;
+      }) 
+    }
     if(loading===false){
-      changeMetaArr("title", `${episodeLinks[0].titleName.substring(
-        0,
-        episodeLinks[0].titleName.indexOf("Episode")
-      )} - ${" " +
-      episodeLinks[0].titleName.substring(
-        episodeLinks[0].titleName.indexOf("Episode")
-      )}`)
-      console.log("Hello")
+      getAnimeBanner();
+      // changeMetaArr("title", `${episodeLinks[0].titleName.substring(
+      //   0,
+      //   episodeLinks[0].titleName.indexOf("Episode")
+      // )} - ${" " +
+      // episodeLinks[0].titleName.substring(
+      //   episodeLinks[0].titleName.indexOf("Episode")
+      // )}`)
+      // console.log("Hello")
     }
   }, [loading])
 
-  useEffect(() => {
-    async function getAnimeDetails() {
-      let res = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}api/getanime?link=/category/${episodeLinks[0].titleName.substring(
-        0,
-        episodeLinks[0].titleName.indexOf("Episode")
-      )}`
-      );
-      setBanner((banner) => {
-        banner = res.data[0].gogoResponse.image;
-      })
-    }
-    getAnimeDetails();
-  }, [banner]);
 
   return (
     <div>

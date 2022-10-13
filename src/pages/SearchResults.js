@@ -21,9 +21,9 @@ function SearchResults({changeMetaArr}) {
   const content= `Search results for: ${urlParams}`;
   const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
 
-  React.useEffect(()=>{
-    changeMetaArr("title", `Search results for: ${urlParams}`)
-  })
+  // React.useEffect(()=>{
+  //   changeMetaArr("title", `Search results for: ${urlParams}`)
+  // })
   useEffect(() => {
     async function getResults() {
       setLoading(true);

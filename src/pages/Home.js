@@ -17,10 +17,10 @@ function Home({changeMetaArr}) {
   const title = "Sakamoto - Watch Popular Anime Online";
   const content= "Sakamoto - Watch Popular Anime Online";
   const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
-  React.useEffect(()=>{
-    changeMetaArr("title", title)
-    // console.log("Hlo")
-  })
+  // React.useEffect(()=>{
+  //   changeMetaArr("title", title)
+  //   // console.log("Hlo")
+  // })
   useEffect(() => {
     getImages();
   }, []);
