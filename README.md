@@ -9,7 +9,7 @@
 <a href="#"><img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white"/></a>
 <a href="#"><img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E"/></a>
 <a href="#"><img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white"/></a>
-<a href="#"><img src="https://img.shields.io/badge/Sakamoto-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white"/></a>
+<a href="https://discord.gg/bkF4DwdTsH"><img src="https://img.shields.io/badge/Sakamoto-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white"/></a>
 <a href="#"><img src="https://img.shields.io/badge/Crunchyroll-F47521?style=for-the-badge&logo=crunchyroll&logoColor=white"/></a>
 </p>
 
