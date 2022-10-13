@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import styled from "styled-components";
 import SearchResultsSkeleton from "../components/skeletons/SearchResultsSkeleton";
+import { Helmet } from "react-helmet";
 
 const DefaultFilter = {
   subs:true,
@@ -16,6 +17,10 @@ function SearchResults({changeMetaArr}) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState(DefaultFilter);
+  const title = `Search results for: ${urlParams}`;
+  const content= `Search results for: ${urlParams}`;
+  const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
+
   React.useEffect(()=>{
     changeMetaArr("title", `Search results for: ${urlParams}`)
   })
@@ -53,6 +58,14 @@ function SearchResults({changeMetaArr}) {
 
   return (
     <>
+      <Helmet>
+      <title>{title}</title>
+        <meta
+          property="og:description"
+          content= {content}
+        />
+        <meta property="og:image" content={image} />
+      </Helmet>
       {loading ? <SearchResultsSkeleton /> :
       (
         <Parent>

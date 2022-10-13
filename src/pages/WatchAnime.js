@@ -6,6 +6,7 @@ import { BiArrowToBottom, BiFullscreen } from "react-icons/bi";
 import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { IconContext } from "react-icons";
+import { Helmet } from "react-helmet";
 import WatchAnimeSkeleton from "../components/skeletons/WatchAnimeSkeleton";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import VideoPlayer from "../components/VideoPlayer/VideoPlayer";
@@ -23,9 +24,17 @@ function WatchAnime({changeMetaArr}) {
   const [fullScreen, setFullScreen] = useState(false);
   const [internalPlayer, setInternalPlayer] = useState(true);
   const [localStorageDetails, setLocalStorageDetails] = useState(0);
+  const [title, setTitle] = useState("");
+  const content= "Sakamoto - Watch Popular Anime Online";
+  const [banner, setBanner] = useState("");
 
   useEffect(() => {
     function updateLocalStorage(episode, episodeLinks) {
+      setTitle((title) => {
+        title = `${episodeLinks[0].titleName.substring(0, episodeLinks[0].titleName.indexOf("Episode"))} 
+        - ${episodeLinks[0].titleName.substring(episodeLinks[0].titleName.indexOf("Episode"))}`;
+        console.log(title);
+      })
       let episodeNum = episode.replace(/.*?(\d+)[^\d]*$/, "$1");
       let animeName = episodeLinks[0].titleName.substring(
         0,
@@ -133,8 +142,31 @@ function WatchAnime({changeMetaArr}) {
     }
   }, [loading])
 
+  useEffect(() => {
+    async function getAnimeDetails() {
+      let res = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}api/getanime?link=/category/${episodeLinks[0].titleName.substring(
+        0,
+        episodeLinks[0].titleName.indexOf("Episode")
+      )}`
+      );
+      setBanner((banner) => {
+        banner = res.data[0].gogoResponse.image;
+      })
+    }
+    getAnimeDetails();
+  }, [banner]);
+
   return (
     <div>
+      <Helmet>
+        <title>{title}</title>
+        <meta
+          property="og:description"
+          content= {content}
+        />
+        <meta property="og:image" content={banner} />
+      </Helmet>
       {loading && <WatchAnimeSkeleton />}
       {!loading && (
         <Wrapper>

@@ -23,6 +23,7 @@ function AnimeDetails() {
         `${process.env.REACT_APP_BACKEND_URL}api/getanime?link=/category/${slug}`
       );
       setLoading(false);
+      console.log(res.data);
       setAnimeDetails(res.data);
       getLocalStorage(res.data);
     }
