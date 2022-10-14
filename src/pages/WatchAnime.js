@@ -6,6 +6,7 @@ import { BiArrowToBottom, BiFullscreen } from "react-icons/bi";
 import { HiArrowSmLeft, HiArrowSmRight } from "react-icons/hi";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { IconContext } from "react-icons";
+import { Helmet } from "react-helmet";
 import WatchAnimeSkeleton from "../components/skeletons/WatchAnimeSkeleton";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import VideoPlayer from "../components/VideoPlayer/VideoPlayer";
@@ -23,9 +24,16 @@ function WatchAnime({changeMetaArr}) {
   const [fullScreen, setFullScreen] = useState(false);
   const [internalPlayer, setInternalPlayer] = useState(true);
   const [localStorageDetails, setLocalStorageDetails] = useState(0);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [banner, setBanner] = useState("");
 
   useEffect(() => {
     function updateLocalStorage(episode, episodeLinks) {
+      setTitle((title) => {
+        return title = `${episodeLinks[0].titleName.substring(0, episodeLinks[0].titleName.indexOf("Episode"))} 
+          - ${episodeLinks[0].titleName.substring(episodeLinks[0].titleName.indexOf("Episode"))}`;
+      });
       let episodeNum = episode.replace(/.*?(\d+)[^\d]*$/, "$1");
       let animeName = episodeLinks[0].titleName.substring(
         0,
@@ -67,7 +75,7 @@ function WatchAnime({changeMetaArr}) {
       }
     }
 
-    async function getEpisodeLinks() {
+  async function getEpisodeLinks() {
       setLoading(true);
       window.scrollTo(0, 0);
       let res = await axios.get(
@@ -121,20 +129,44 @@ function WatchAnime({changeMetaArr}) {
   }
 
   useEffect(()=>{
+    async function getAnimeBanner() {
+      let slug = `${episodeLinks[0].titleName.substring(0,
+       episodeLinks[0].titleName.indexOf("Episode"))}`.toLowerCase().replaceAll(" ","-").slice(0, -1);
+      console.log(slug);
+      let res = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}api/getanime?link=/category/${slug}`
+      );
+      setContent((content) => {
+        return content = res.data[0].gogoResponse.description.replace("Plot Summary:", "");
+      })
+      setBanner((banner) => {
+        return banner = res.data[0].gogoResponse.image;
+      }) 
+    }
     if(loading===false){
-      changeMetaArr("title", `${episodeLinks[0].titleName.substring(
-        0,
-        episodeLinks[0].titleName.indexOf("Episode")
-      )} - ${" " +
-      episodeLinks[0].titleName.substring(
-        episodeLinks[0].titleName.indexOf("Episode")
-      )}`)
-      console.log("Hello")
+      getAnimeBanner();
+      // changeMetaArr("title", `${episodeLinks[0].titleName.substring(
+      //   0,
+      //   episodeLinks[0].titleName.indexOf("Episode")
+      // )} - ${" " +
+      // episodeLinks[0].titleName.substring(
+      //   episodeLinks[0].titleName.indexOf("Episode")
+      // )}`)
+      // console.log("Hello")
     }
   }, [loading])
 
+
   return (
     <div>
+      <Helmet>
+        <title>{title}</title>
+        <meta
+          property="og:description"
+          content= {content}
+        />
+        <meta property="og:image" content={banner} />
+      </Helmet>
       {loading && <WatchAnimeSkeleton />}
       {!loading && (
         <Wrapper>

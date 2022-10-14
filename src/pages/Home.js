@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Carousel from "../components/Home/Carousel";
 import axios from "axios";
+import { Helmet } from "react-helmet";
 import AnimeCards from "../components/Home/AnimeCards";
 import HomeSkeleton from "../components/skeletons/CarouselSkeleton";
 import useWindowDimensions from "../hooks/useWindowDimensions";
@@ -13,10 +14,13 @@ function Home({changeMetaArr}) {
   const [loading, setLoading] = useState(true);
   const [confirmRemove, setConfirmRemove] = useState([]);
   const { width } = useWindowDimensions();
-  React.useEffect(()=>{
-    changeMetaArr("title", "Sakamoto - Watch Popular Anime Online")
-    // console.log("Hlo")
-  })
+  const title = "Sakamoto - Watch Popular Anime Online";
+  const content= "Sakamoto - Watch Popular Anime Online";
+  const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
+  // React.useEffect(()=>{
+  //   changeMetaArr("title", title)
+  //   // console.log("Hlo")
+  // })
   useEffect(() => {
     getImages();
   }, []);
@@ -40,6 +44,14 @@ function Home({changeMetaArr}) {
   }
   return (
     <div>
+      <Helmet>
+        <title>{title}</title>
+          <meta
+            property="og:description"
+            content= {content}
+          />
+        <meta property="og:image" content={image} />
+      </Helmet>
       <HomeDiv>
         <HomeHeading>
           <span>Recommended</span> to you
