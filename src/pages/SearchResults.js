@@ -18,7 +18,7 @@ function SearchResults({changeMetaArr}) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState(DefaultFilter);
   const title = `Search results for: ${urlParams}`;
-  const content= `Search results for: ${urlParams}`;
+  const content= "Sakamoto - Watch Popular Anime Online";
   const image = "https://media.discordapp.net/attachments/1009328245533065288/1009328327909199904/8.png";
 
   // React.useEffect(()=>{
